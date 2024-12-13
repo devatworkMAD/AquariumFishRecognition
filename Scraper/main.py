@@ -62,6 +62,27 @@ def scrape(dir, url):
 
 
 if __name__ == "__main__":
-    scrape("images/danio_rerio", "https://duckduckgo.com/?q=danio+rerio&t=h_&iar=images&iax=images&ia=images")
-    scrape("images/danio_kyathit", "https://duckduckgo.com/?q=danio+kyathit&t=h_&iar=images&iax=images&ia=images")
+    with open("fish_list.txt") as file:
+        for line in file:
+            name = line.rstrip()
+            name_vector = name.split()
+            dir = "images/"
+            for index, word in enumerate(name_vector):
+                if index < len(name_vector)-1:
+                    dir += word + "_"
+                else:
+                    dir += word
+
+            print(dir)
+
+            url_search = ""
+            for index, word in enumerate(name_vector):
+                if index < len(name_vector) - 1:
+                    url_search += word + "+"
+                else:
+                    url_search += word
+
+            print(url_search)
+            url = "https://duckduckgo.com/?q=" + url_search + "&t=h_&iar=images&iax=images&ia=images"
+            scrape(dir, url)
     driver.quit()
