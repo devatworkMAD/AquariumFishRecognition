@@ -1,16 +1,38 @@
-# This is a sample Python script.
+import hashlib, io, pandas as pd
 
-# Press Umschalt+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import requests
+from selenium import webdriver
+from selenium.webdriver import ChromeOptions
+from bs4 import BeautifulSoup
+from pathlib import Path
+from PIL import Image
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Strg+F8 to toggle the breakpoint.
+options = ChromeOptions()
+options.add_argument("--headless=new")
+driver = webdriver.Chrome(options=options)
 
+driver.get("https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2334524.m570.l1313&_nkw=laptop&_sacat=0&LH_TitleDesc=0&_osacat=0&_odkw=laptop")
+content = driver.page_source
+soup = BeautifulSoup(content, "html.parser")
+driver.quit()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def gets_url(classes, location, source):
+    results = []
+    for a in soup.findAll(attrs={"class": classes}):
+        name = a.find(location)
+        if name not in results:
+            results.append(name.get(source))
+    return results
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    save_dir = Path(__file__).parent / "images"
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    returned_results = gets_url("s-item__image-wrapper image-treatment", "img", "src")
+    for b in returned_results:
+        image_content = requests.get(b).content
+        image_file = io.BytesIO(image_content)
+        image = Image.open(image_file).convert("RGB")
+        file_path = save_dir / (hashlib.sha1(image_content).hexdigest()[:10] + ".png")
+        image.save(file_path, "PNG", quality=80)
