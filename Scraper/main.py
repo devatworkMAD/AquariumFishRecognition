@@ -17,12 +17,12 @@ def gets_url(classes, source, url):
     driver.get(url)
 
     # Wait for the page to load completely
-    time.sleep(5)  # Wait for 5 seconds; adjust if necessary
+    time.sleep(5)
 
     content = driver.page_source
     soup = BeautifulSoup(content, "html.parser")
 
-    # Print page source to debug
+
     print("Page source length:", len(content))
 
     results = []
@@ -31,7 +31,7 @@ def gets_url(classes, source, url):
 
     for img in images:
         image_url = img.get(source) or img.get('src')
-        print("Image URL found:", image_url)  # Debug print for each image URL
+        print("Image URL found:", image_url)
 
         if image_url:
             if image_url.startswith("//"):
@@ -61,28 +61,34 @@ def scrape(dir, url):
             print(f"Error downloading image {b}: {e}")
 
 
+def build_dir_name(name_vector):
+    resault = "images/"
+    for index, word in enumerate(name_vector):
+        if index < len(name_vector) - 1:
+            resault += word + "_"
+        else:
+            resault += word
+    return resault
+
+def build_url_search(name_vector):
+    resault = ""
+    for index, word in enumerate(name_vector):
+        if index < len(name_vector) - 1:
+            resault += word + "+"
+        else:
+            resault += word
+    return resault
+
+
 if __name__ == "__main__":
     with open("fish_list.txt") as file:
         for line in file:
             name = line.rstrip()
             name_vector = name.split()
-            dir = "images/"
-            for index, word in enumerate(name_vector):
-                if index < len(name_vector)-1:
-                    dir += word + "_"
-                else:
-                    dir += word
 
-            print(dir)
+            dir = build_dir_name(name_vector)
+            url_search = build_url_search(name_vector)
 
-            url_search = ""
-            for index, word in enumerate(name_vector):
-                if index < len(name_vector) - 1:
-                    url_search += word + "+"
-                else:
-                    url_search += word
-
-            print(url_search)
             url = "https://duckduckgo.com/?q=" + url_search + "&t=h_&iar=images&iax=images&ia=images"
             scrape(dir, url)
     driver.quit()
