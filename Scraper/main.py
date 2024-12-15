@@ -17,7 +17,7 @@ def gets_url(classes, source, url):
     driver.get(url)
 
     # Wait for the page to load completely
-    time.sleep(5)
+    time.sleep(10)
 
     content = driver.page_source
     soup = BeautifulSoup(content, "html.parser")
